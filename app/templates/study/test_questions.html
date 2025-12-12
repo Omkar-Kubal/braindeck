@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Test Questions - FlashMaster{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold gradient-text">Answer All Questions</h1>
+        <p class="text-gray-400 mt-2">{{ cards|length }} questions to answer</p>
+    </div>
+
+    <!-- Timer (visual only) -->
+    <div class="glass rounded-xl p-4 mb-8 flex items-center justify-center">
+        <svg class="w-5 h-5 text-primary-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="timer" class="text-xl font-mono text-white">00:00</span>
+    </div>
+
+    <!-- Questions Form -->
+    <form action="{{ url_for('study.test_questions') }}" method="POST" id="test-form">
+        <div class="space-y-6">
+            {% for card in cards %}
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-start">
+                    <span
+                        class="flex-shrink-0 w-8 h-8 rounded-lg bg-primary-500/20 text-primary-300 flex items-center justify-center font-semibold text-sm">
+                        {{ loop.index }}
+                    </span>
+                    <div class="ml-4 flex-1">
+                        <p class="text-lg font-medium text-white mb-4">{{ card.question }}</p>
+                        <input type="text" name="answer_{{ card.id }}"
+                            class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
+                            placeholder="Type your answer here..." autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Submit -->
+        <div class="mt-8 flex items-center justify-center">
+            <button type="submit" class="btn-primary px-12 py-4 rounded-xl font-semibold text-white text-lg">
+                Submit Answers
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Simple timer
+    let seconds = 0;
+    const timerEl = document.getElementById('timer');
+
+    setInterval(() => {
+        seconds++;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    }, 1000);
+
+    // Warn before leaving
+    window.addEventListener('beforeunload', function (e) {
+        e.preventDefault();
+        e.returnValue = '';
+    });
+
+    // Remove warning on submit
+    document.getElementById('test-form').addEventListener('submit', function () {
+        window.removeEventListener('beforeunload', function () { });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Study Card - FlashMaster{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in max-w-3xl mx-auto">
+    <!-- Progress Bar -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
+            <span>Card {{ current }} of {{ total }}</span>
+            <div class="flex items-center space-x-4">
+                <span class="text-emerald-400">✓ {{ correct }}</span>
+                <span class="text-red-400">✗ {{ wrong }}</span>
+            </div>
+        </div>
+        <div class="h-2 glass rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all duration-300"
+                style="width: {{ (current / total * 100)|round }}%"></div>
+        </div>
+    </div>
+
+    <!-- Flashcard -->
+    <div id="flashcard" class="relative" style="perspective: 1000px;">
+        <div id="card-inner" class="relative transition-transform duration-500" style="transform-style: preserve-3d;">
+
+            <!-- Question Side -->
+            <div id="question-side"
+                class="glass rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-center items-center text-center cursor-pointer"
+                onclick="flipCard()">
+                <div
+                    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-primary-500/20 text-primary-300 text-xs font-medium">
+                    Question
+                </div>
+
+                <p class="text-2xl md:text-3xl font-semibold text-white leading-relaxed">
+                    {{ card.question }}
+                </p>
+
+                <p class="text-gray-500 mt-8 text-sm flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                        </path>
+                    </svg>
+                    Click to reveal answer
+                </p>
+            </div>
+
+            <!-- Answer Side (hidden by default) -->
+            <div id="answer-side"
+                class="glass rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-center items-center text-center hidden">
+                <div
+                    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium">
+                    Answer
+                </div>
+
+                <p class="text-2xl md:text-3xl font-semibold text-white leading-relaxed mb-8">
+                    {{ card.answer }}
+                </p>
+
+                <!-- Rating Buttons -->
+                <div class="w-full">
+                    <p class="text-gray-400 text-sm mb-4">How well did you know this?</p>
+                    <form action="{{ url_for('study.submit_answer') }}" method="POST">
+                        <input type="hidden" name="card_id" value="{{ card.id }}">
+                        <div class="grid grid-cols-3 gap-3">
+                            <button type="submit" name="quality" value="1"
+                                class="glass rounded-xl py-4 text-center hover:bg-red-500/20 hover:border-red-500/50 transition-all group">
+                                <span class="text-2xl block mb-1">😕</span>
+                                <span class="text-red-400 font-medium text-sm">Again</span>
+                            </button>
+                            <button type="submit" name="quality" value="3"
+                                class="glass rounded-xl py-4 text-center hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-all group">
+                                <span class="text-2xl block mb-1">🤔</span>
+                                <span class="text-yellow-400 font-medium text-sm">Hard</span>
+                            </button>
+                            <button type="submit" name="quality" value="5"
+                                class="glass rounded-xl py-4 text-center hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all group">
+                                <span class="text-2xl block mb-1">😊</span>
+                                <span class="text-emerald-400 font-medium text-sm">Easy</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex items-center justify-center mt-8 space-x-4">
+        <a href="{{ url_for('study.study_home') }}"
+            class="px-6 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+            Exit Study
+        </a>
+    </div>
+</div>
+
+<script>
+    let isFlipped = false;
+
+    function flipCard() {
+        if (!isFlipped) {
+            document.getElementById('question-side').classList.add('hidden');
+            document.getElementById('answer-side').classList.remove('hidden');
+            isFlipped = true;
+        }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+        if (e.code === 'Space' && !isFlipped) {
+            e.preventDefault();
+            flipCard();
+        } else if (isFlipped) {
+            if (e.key === '1') {
+                document.querySelector('button[value="1"]').click();
+            } else if (e.key === '2' || e.key === '3') {
+                document.querySelector('button[value="3"]').click();
+            } else if (e.key === '4' || e.key === '5') {
+                document.querySelector('button[value="5"]').click();
+            }
+        }
+    });
+</script>
+{% endblock %}

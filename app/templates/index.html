@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}FlashMaster - AI-Powered Learning{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-4">
+            <span class="gradient-text">Master Any Subject</span>
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+            AI-powered flashcards with spaced repetition. Learn faster, remember longer.
+        </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <!-- Total Cards -->
+        <div class="glass rounded-2xl p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Total Flashcards</p>
+                    <p class="text-4xl font-bold gradient-text mt-1">{{ total_cards }}</p>
+                </div>
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500/20 to-purple-500/20 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Decks -->
+        <div class="glass rounded-2xl p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Total Decks</p>
+                    <p class="text-4xl font-bold gradient-text mt-1">{{ total_decks }}</p>
+                </div>
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Learning -->
+        <div
+            class="glass rounded-2xl p-6 card-hover bg-gradient-to-br from-primary-600/20 to-purple-600/20 border-primary-500/30">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-300 text-sm font-medium">Ready to Learn?</p>
+                    <a href="{{ url_for('study.study_home') }}"
+                        class="text-lg font-bold text-white hover:text-primary-300 transition-colors mt-1 inline-flex items-center">
+                        Start Studying
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center animate-glow">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <a href="{{ url_for('flashcards.create_flashcard') }}" class="glass rounded-xl p-5 card-hover group">
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-white">Add Card</p>
+                    <p class="text-sm text-gray-400">Create new flashcard</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('flashcards.create_deck') }}" class="glass rounded-xl p-5 card-hover group">
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-white">Create Deck</p>
+                    <p class="text-sm text-gray-400">Organize cards</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('study.study_home') }}" class="glass rounded-xl p-5 card-hover group">
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-white">Study Mode</p>
+                    <p class="text-sm text-gray-400">Review flashcards</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('study.start_test') }}" class="glass rounded-xl p-5 card-hover group">
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-white">Take Test</p>
+                    <p class="text-sm text-gray-400">Check your knowledge</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Recent Cards -->
+    {% if recent_cards %}
+    <div class="glass rounded-2xl p-6">
+        <h2 class="text-2xl font-bold mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Recent Flashcards
+        </h2>
+        <div class="space-y-4">
+            {% for card in recent_cards %}
+            <div class="glass rounded-xl p-4 hover:bg-white/5 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <p class="font-medium text-white">{{ card.question[:100] }}{% if card.question|length > 100
+                            %}...{% endif %}</p>
+                        <p class="text-sm text-gray-400 mt-1">{{ card.answer[:80] }}{% if card.answer|length > 80
+                            %}...{% endif %}</p>
+                    </div>
+                    <a href="{{ url_for('flashcards.edit_flashcard', id=card.id) }}"
+                        class="ml-4 p-2 rounded-lg hover:bg-white/10 transition-colors">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="{{ url_for('flashcards.list_flashcards') }}"
+                class="inline-flex items-center text-primary-400 hover:text-primary-300 font-medium">
+                View All Flashcards
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="glass rounded-2xl p-12 text-center">
+        <div
+            class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary-500/20 to-purple-500/20 flex items-center justify-center">
+            <svg class="w-10 h-10 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">No flashcards yet</h3>
+        <p class="text-gray-400 mb-6">Create your first flashcard to start learning!</p>
+        <a href="{{ url_for('flashcards.create_flashcard') }}"
+            class="btn-primary inline-flex items-center px-6 py-3 rounded-xl font-semibold text-white">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Create Your First Card
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

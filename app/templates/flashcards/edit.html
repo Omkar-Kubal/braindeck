@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Flashcard - FlashMaster{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ url_for('flashcards.list_flashcards') }}"
+            class="inline-flex items-center text-gray-400 hover:text-white transition-colors mb-4">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                </path>
+            </svg>
+            Back to Flashcards
+        </a>
+        <h1 class="text-3xl font-bold gradient-text">Edit Flashcard</h1>
+        <p class="text-gray-400 mt-1">Update your flashcard content</p>
+    </div>
+
+    <!-- Form -->
+    <form action="{{ url_for('flashcards.edit_flashcard', id=flashcard.id) }}" method="POST"
+        class="glass rounded-2xl p-8">
+        <!-- Deck Selection -->
+        <div class="mb-6">
+            <label for="deck_id" class="block text-sm font-medium text-gray-300 mb-2">Deck (Optional)</label>
+            <select name="deck_id" id="deck_id"
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white focus:ring-2 focus:ring-primary-500">
+                <option value="">No Deck</option>
+                {% for deck in decks %}
+                <option value="{{ deck.id }}" {% if flashcard.deck_id==deck.id %}selected{% endif %}>{{ deck.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Question -->
+        <div class="mb-6">
+            <label for="question" class="block text-sm font-medium text-gray-300 mb-2">Question *</label>
+            <textarea name="question" id="question" rows="4" required
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 resize-none">{{ flashcard.question }}</textarea>
+        </div>
+
+        <!-- Answer -->
+        <div class="mb-8">
+            <label for="answer" class="block text-sm font-medium text-gray-300 mb-2">Answer *</label>
+            <textarea name="answer" id="answer" rows="4" required
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 resize-none">{{ flashcard.answer }}</textarea>
+        </div>
+
+        <!-- Stats -->
+        <div class="mb-8 p-4 rounded-xl bg-white/5">
+            <p class="text-sm text-gray-400 mb-2">Card Statistics</p>
+            <div class="flex items-center space-x-6 text-sm">
+                <span class="text-gray-300">Reviewed: <span class="text-white font-medium">{{ flashcard.times_reviewed
+                        }}</span> times</span>
+                <span class="text-gray-300">Correct: <span class="text-emerald-400 font-medium">{{
+                        flashcard.times_correct }}</span></span>
+                {% if flashcard.times_reviewed > 0 %}
+                <span class="text-gray-300">Accuracy: <span class="text-primary-400 font-medium">{{
+                        ((flashcard.times_correct / flashcard.times_reviewed) * 100)|round|int }}%</span></span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center justify-between">
+            <form action="{{ url_for('flashcards.delete_flashcard', id=flashcard.id) }}" method="POST"
+                onsubmit="return confirm('Are you sure you want to delete this flashcard?');">
+                <button type="submit"
+                    class="px-6 py-3 rounded-xl font-semibold text-red-400 hover:bg-red-500/20 transition-colors">
+                    Delete Card
+                </button>
+            </form>
+
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('flashcards.list_flashcards') }}"
+                    class="px-6 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary px-8 py-3 rounded-xl font-semibold text-white">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

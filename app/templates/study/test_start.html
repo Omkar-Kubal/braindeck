@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Start Test - FlashMaster{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div
+            class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                </path>
+            </svg>
+        </div>
+        <h1 class="text-3xl font-bold gradient-text">Start a Test</h1>
+        <p class="text-gray-400 mt-2">Enter your details to begin the graded test</p>
+    </div>
+
+    <!-- Form -->
+    <form action="{{ url_for('study.start_test') }}" method="POST" class="glass rounded-2xl p-8">
+        <!-- Name -->
+        <div class="mb-6">
+            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Your Name *</label>
+            <input type="text" name="name" id="name" required
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
+                placeholder="Enter your full name">
+        </div>
+
+        <!-- Roll Number -->
+        <div class="mb-6">
+            <label for="roll_no" class="block text-sm font-medium text-gray-300 mb-2">Roll Number *</label>
+            <input type="text" name="roll_no" id="roll_no" required pattern="^R\d+$"
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., R123">
+            <p class="text-xs text-gray-500 mt-2">Format: R followed by numbers (e.g., R123, R4567)</p>
+        </div>
+
+        <!-- Class -->
+        <div class="mb-6">
+            <label for="student_class" class="block text-sm font-medium text-gray-300 mb-2">Class *</label>
+            <input type="text" name="student_class" id="student_class" required
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
+                placeholder="e.g., 10th Grade, CS101">
+        </div>
+
+        <!-- Deck Selection -->
+        <div class="mb-8">
+            <label for="deck_id" class="block text-sm font-medium text-gray-300 mb-2">Select Deck (Optional)</label>
+            <select name="deck_id" id="deck_id"
+                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white focus:ring-2 focus:ring-primary-500">
+                <option value="">All Flashcards</option>
+                {% for deck in decks %}
+                <option value="{{ deck.id }}">{{ deck.name }} ({{ deck.card_count }} cards)</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary w-full py-4 rounded-xl font-semibold text-white text-lg">
+            Begin Test
+        </button>
+    </form>
+
+    <!-- Back Link -->
+    <div class="text-center mt-6">
+        <a href="{{ url_for('study.study_home') }}" class="text-gray-400 hover:text-white transition-colors">
+            ← Back to Study
+        </a>
+    </div>
+</div>
+{% endblock %}

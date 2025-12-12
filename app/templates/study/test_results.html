@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Test Results - FlashMaster{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in max-w-3xl mx-auto">
+    <!-- Score Header -->
+    <div class="text-center mb-8">
+        <div
+            class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br {% if score >= 70 %}from-emerald-500 to-green-600{% elif score >= 50 %}from-yellow-500 to-orange-600{% else %}from-red-500 to-pink-600{% endif %} flex items-center justify-center">
+            <span class="text-4xl font-extrabold text-white">{{ score|round|int }}%</span>
+        </div>
+        <h1 class="text-3xl font-bold gradient-text mb-2">
+            {% if score >= 90 %}Excellent! 🎉{% elif score >= 70 %}Great Job! 👍{% elif score >= 50 %}Keep Practicing!
+            💪{% else %}Don't Give Up! 📚{% endif %}
+        </h1>
+        <p class="text-gray-400">
+            Time taken: {{ (time_taken // 60)|int }}m {{ time_taken % 60 }}s
+        </p>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="glass rounded-2xl p-6 mb-8">
+        <div class="grid grid-cols-3 gap-6 text-center">
+            <div>
+                <p class="text-3xl font-bold text-white">{{ total }}</p>
+                <p class="text-gray-400 text-sm">Total Questions</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-emerald-400">{{ correct }}</p>
+                <p class="text-gray-400 text-sm">Correct</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-red-400">{{ wrong }}</p>
+                <p class="text-gray-400 text-sm">Wrong</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Results -->
+    <div class="glass rounded-2xl p-6 mb-8">
+        <h2 class="text-xl font-bold mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                </path>
+            </svg>
+            Detailed Review
+        </h2>
+
+        <div class="space-y-4">
+            {% for result in results %}
+            <div
+                class="glass rounded-xl p-4 {% if result.is_correct %}border-emerald-500/30 bg-emerald-500/5{% else %}border-red-500/30 bg-red-500/5{% endif %}">
+                <div class="flex items-start">
+                    <span
+                        class="flex-shrink-0 w-8 h-8 rounded-lg {% if result.is_correct %}bg-emerald-500/20 text-emerald-400{% else %}bg-red-500/20 text-red-400{% endif %} flex items-center justify-center">
+                        {% if result.is_correct %}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        {% else %}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        {% endif %}
+                    </span>
+                    <div class="ml-4 flex-1">
+                        <p class="font-medium text-white">{{ result.question }}</p>
+                        <div class="mt-3 space-y-2 text-sm">
+                            <div class="flex items-start">
+                                <span class="text-gray-500 w-24 flex-shrink-0">Your answer:</span>
+                                <span
+                                    class="{% if result.is_correct %}text-emerald-400{% else %}text-red-400{% endif %}">
+                                    {{ result.student_answer or '(no answer)' }}
+                                </span>
+                            </div>
+                            {% if not result.is_correct %}
+                            <div class="flex items-start">
+                                <span class="text-gray-500 w-24 flex-shrink-0">Correct:</span>
+                                <span class="text-emerald-400">{{ result.correct_answer }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <a href="{{ url_for('study.start_test') }}"
+            class="btn-primary px-8 py-3 rounded-xl font-semibold text-white inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+            </svg>
+            Take Another Test
+        </a>
+        <a href="{{ url_for('study.reports') }}"
+            class="px-8 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+            View All Reports
+        </a>
+        <a href="{{ url_for('main.index') }}"
+            class="px-8 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+            Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

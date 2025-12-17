@@ -41,6 +41,29 @@ class Flashcard(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
     
+    @property
+    def error_rate(self):
+        """Calculate error rate (0.0 to 1.0) for adaptive ordering."""
+        if self.times_reviewed == 0:
+            return 0.5  # Neutral for new cards
+        return 1.0 - (self.times_correct / self.times_reviewed)
+    
+    @property
+    def priority_score(self):
+        """Calculate priority score for adaptive ordering (higher = more important to review)."""
+        # Combine error rate, review count, and difficulty
+        # Cards with higher error rates and lower review counts get higher priority
+        base_score = self.error_rate * 100
+        
+        # Boost cards that haven't been reviewed much
+        if self.times_reviewed < 3:
+            base_score += 20
+        
+        # Factor in difficulty
+        base_score += (self.difficulty * 5)
+        
+        return base_score
+    
     def update_spaced_repetition(self, quality):
         """
         Update spaced repetition parameters using SM-2 algorithm.

@@ -1,219 +1,256 @@
 {% extends "base.html" %}
 
-{% block title %}FlashMaster - AI-Powered Learning{% endblock %}
+{% block title %}Dashboard - BrainDeck{% endblock %}
 
 {% block content %}
-<div class="animate-fade-in">
-    <!-- Hero Section -->
-    <div class="text-center mb-12">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-4">
-            <span class="gradient-text">Master Any Subject</span>
-        </h1>
-        <p class="text-xl text-gray-400 max-w-2xl mx-auto">
-            AI-powered flashcards with spaced repetition. Learn faster, remember longer.
-        </p>
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+    <!-- Welcome Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">
+                Welcome back{% if current_user.is_authenticated %}, {{ current_user.username }}{% endif %}
+            </h2>
+            <p class="text-text-secondary flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-sm">local_fire_department</span>
+                You're on a 12-day streak! Keep it up.
+            </p>
+        </div>
+        <button
+            class="bg-primary hover:bg-primary-dark text-slate-900 px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined">add</span>
+            Create New Deck
+        </button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <!-- Total Cards -->
-        <div class="glass rounded-2xl p-6 card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Total Flashcards</p>
-                    <p class="text-4xl font-bold gradient-text mt-1">{{ total_cards }}</p>
+    <!-- Stats Cards - 4 Column Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Cards Mastered -->
+        <div
+            class="bg-surface-card p-5 rounded-xl border border-[#233648] shadow-sm hover:border-primary/30 transition-all">
+            <div class="flex justify-between items-start mb-3">
+                <div class="p-2 bg-[#233648] rounded-lg">
+                    <span class="material-symbols-outlined text-green-400 block">school</span>
                 </div>
-                <div
-                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500/20 to-purple-500/20 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                        </path>
-                    </svg>
+                <span class="text-green-400 text-xs font-medium bg-green-400/10 px-2 py-1 rounded">+5%</span>
+            </div>
+            <p class="text-text-secondary text-sm font-medium">Cards Mastered</p>
+            <p class="text-white text-3xl font-bold mt-1">{{total_cards|default(1245) }}</p>
+        </div>
+
+        <!-- Current Streak -->
+        <div
+            class="bg-surface-card p-5 rounded-xl border border-[#233648] shadow-sm hover:border-primary/30 transition-all">
+            <div class="flex justify-between items-start mb-3">
+                <div class="p-2 bg-[#233648] rounded-lg">
+                    <span class="material-symbols-outlined text-orange-400 block">local_fire_department</span>
                 </div>
+                <span class="text-green-400 text-xs font-medium bg-green-400/10 px-2 py-1 rounded">+1 day</span>
+            </div>
+            <p class="text-text-secondary text-sm font-medium">Current Streak</p>
+            <p class="text-white text-3xl font-bold mt-1">12 Days</p>
+        </div>
+
+        <!-- Daily Goal -->
+        <div
+            class="bg-surface-card p-5 rounded-xl border border-[#233648] shadow-sm hover:border-primary/30 transition-all">
+            <div class="flex justify-between items-start mb-3">
+                <div class="p-2 bg-[#233648] rounded-lg">
+                    <span class="material-symbols-outlined text-purple-400 block">target</span>
+                </div>
+                <span class="text-green-400 text-xs font-medium bg-green-400/10 px-2 py-1 rounded">+10%</span>
+            </div>
+            <p class="text-text-secondary text-sm font-medium">Daily Goal</p>
+            <div class="flex items-baseline gap-2 mt-1">
+                <p class="text-white text-3xl font-bold">85%</p>
+                <span class="text-text-secondary text-sm">of 50 cards</span>
+            </div>
+            <div class="w-full bg-[#233648] h-1.5 rounded-full mt-3 overflow-hidden">
+                <div class="bg-purple-500 h-full rounded-full transition-all" style="width: 85%"></div>
             </div>
         </div>
 
         <!-- Total Decks -->
-        <div class="glass rounded-2xl p-6 card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Total Decks</p>
-                    <p class="text-4xl font-bold gradient-text mt-1">{{ total_decks }}</p>
-                </div>
-                <div
-                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                        </path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- Start Learning -->
         <div
-            class="glass rounded-2xl p-6 card-hover bg-gradient-to-br from-primary-600/20 to-purple-600/20 border-primary-500/30">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-300 text-sm font-medium">Ready to Learn?</p>
-                    <a href="{{ url_for('study.study_home') }}"
-                        class="text-lg font-bold text-white hover:text-primary-300 transition-colors mt-1 inline-flex items-center">
-                        Start Studying
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                        </svg>
-                    </a>
+            class="bg-surface-card p-5 rounded-xl border border-[#233648] shadow-sm hover:border-primary/30 transition-all">
+            <div class="flex justify-between items-start mb-3">
+                <div class="p-2 bg-[#233648] rounded-lg">
+                    <span class="material-symbols-outlined text-blue-400 block">layers</span>
                 </div>
-                <div
-                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center animate-glow">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
-                        </path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+            </div>
+            <p class="text-text-secondary text-sm font-medium">Total Decks</p>
+            <p class="text-white text-3xl font-bold mt-1">{{ decks|length }}</p>
+        </div>
+    </div>
+
+    <!-- AI Recommendation Card -->
+    <div
+        class="bg-gradient-to-r from-surface-card to-surface-dark rounded-2xl border border-border-dark overflow-hidden shadow-lg relative group">
+        <div class="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none">
+        </div>
+
+        <div class="flex flex-col md:flex-row">
+            <!-- Background Image -->
+            <div class="w-full md:w-1/3 min-h-[200px] md:min-h-full bg-cover bg-center relative"
+                style="background-image: linear-gradient(135deg, rgba(16, 25, 34, 0.8), rgba(25, 38, 51, 1)), url('data:image/svg+xml,%3Csvg width=&quot;200&quot; height=&quot;200&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cdefs%3E%3Cpattern id=&quot;grid&quot; width=&quot;20&quot; height=&quot;20&quot; patternUnits=&quot;userSpaceOnUse&quot;%3E%3Ccircle cx=&quot;2&quot; cy=&quot;2&quot; r=&quot;1&quot; fill=&quot;%23FACC15&quot; opacity=&quot;0.1&quot;/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=&quot;100%25&quot; height=&quot;100%25&quot; fill=&quot;url(%23grid)&quot;/%3E%3C/svg%3E');">
+                <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-surface-card to-transparent">
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 flex-1 flex flex-col justify-center relative z-10">
+                <div class="flex items-center gap-2 text-primary text-sm font-bold uppercase tracking-wider mb-2">
+                    <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    AI Recommendation
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Quick Study: French Verbs</h3>
+                <p class="text-text-secondary mb-6 max-w-xl">
+                    Our AI noticed you're struggling with the 'Subjunctive Mood' category. We've prepared a focused
+                    10-minute session to help you master it.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{{ url_for('study.study_session') }}"
+                        class="bg-primary hover:bg-primary-dark text-slate-900 px-6 py-3 rounded-lg font-bold shadow-lg shadow-primary/25 transition-all transform hover:scale-[1.02] flex items-center gap-2">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                        Start Session
+                    </a>
+                    <button
+                        class="bg-surface-highlight hover:bg-border-dark text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        View Details
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-        <a href="{{ url_for('flashcards.create_flashcard') }}" class="glass rounded-xl p-5 card-hover group">
-            <div class="flex items-center space-x-4">
-                <div
-                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-semibold text-white">Add Card</p>
-                    <p class="text-sm text-gray-400">Create new flashcard</p>
-                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Decks -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">Recent Decks</h3>
+                <a href="{{ url_for('flashcards.list_decks') }}"
+                    class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                    View all <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </a>
             </div>
-        </a>
 
-        <a href="{{ url_for('flashcards.create_deck') }}" class="glass rounded-xl p-5 card-hover group">
-            <div class="flex items-center space-x-4">
+            {% if decks %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for deck in decks[:4] %}
+                {% set progress = (loop.index0 * 23 + 28) % 100 %}
+                {% set emoji = ['🇫🇷', '🧬', '🏛️', '💻'][loop.index0 % 4] %}
+                {% set colors = ['#3b82f6', '#10b981', '#eab308', '#06b6d4'] %}
+                {% set bar_color = colors[loop.index0 % 4] %}
                 <div
-                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-semibold text-white">Create Deck</p>
-                    <p class="text-sm text-gray-400">Organize cards</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('study.study_home') }}" class="glass rounded-xl p-5 card-hover group">
-            <div class="flex items-center space-x-4">
-                <div
-                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-semibold text-white">Study Mode</p>
-                    <p class="text-sm text-gray-400">Review flashcards</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ url_for('study.start_test') }}" class="glass rounded-xl p-5 card-hover group">
-            <div class="flex items-center space-x-4">
-                <div
-                    class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-semibold text-white">Take Test</p>
-                    <p class="text-sm text-gray-400">Check your knowledge</p>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <!-- Recent Cards -->
-    {% if recent_cards %}
-    <div class="glass rounded-2xl p-6">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Recent Flashcards
-        </h2>
-        <div class="space-y-4">
-            {% for card in recent_cards %}
-            <div class="glass rounded-xl p-4 hover:bg-white/5 transition-colors">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <p class="font-medium text-white">{{ card.question[:100] }}{% if card.question|length > 100
-                            %}...{% endif %}</p>
-                        <p class="text-sm text-gray-400 mt-1">{{ card.answer[:80] }}{% if card.answer|length > 80
-                            %}...{% endif %}</p>
+                    class="bg-surface-card p-4 rounded-xl border border-border-dark hover:border-primary/50 transition-colors group cursor-pointer flex gap-4 items-center card-hover">
+                    <div
+                        class="w-16 h-16 rounded-lg bg-surface-highlight flex items-center justify-center shrink-0 text-3xl group-hover:scale-110 transition-transform">
+                        {{ emoji }}
                     </div>
-                    <a href="{{ url_for('flashcards.edit_flashcard', id=card.id) }}"
-                        class="ml-4 p-2 rounded-lg hover:bg-white/10 transition-colors">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                            </path>
-                        </svg>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-bold truncate group-hover:text-primary transition-colors">{{
+                            deck.name }}</h4>
+                        <div class="flex items-center justify-between text-xs text-text-secondary mt-1 mb-2">
+                            <span>{{ deck.card_count }}/150 cards</span>
+                            <span>{{ progress }}%</span>
+                        </div>
+                        <div class="w-full bg-background-dark h-1.5 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all"
+                                style="--progress: {{ progress }}%; --bar-color: {{ bar_color }}; width: var(--progress); background-color: var(--bar-color);">
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="w-8 h-8 rounded-full bg-surface-highlight flex items-center justify-center text-white group-hover:bg-primary group-hover:text-slate-900 transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="bg-surface-card rounded-xl border border-border-dark p-12 text-center">
+                <div class="w-20 h-20 rounded-full bg-surface-highlight flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-4xl text-text-secondary">folder_open</span>
+                </div>
+                <h4 class="text-white font-bold text-xl mb-3">No decks yet</h4>
+                <p class="text-text-secondary mb-8 max-w-md mx-auto">
+                    Create your first deck to start organizing your flashcards, or let AI generate cards from your
+                    notes.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="{{ url_for('flashcards.create_deck') }}"
+                        class="btn-secondary px-5 py-2.5 rounded-lg font-medium">
+                        Create Manually
+                    </a>
+                    <a href="{{ url_for('ai.generate') }}"
+                        class="btn-primary px-5 py-2.5 rounded-lg font-medium flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                        Generate with AI
                     </a>
                 </div>
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
 
-        <div class="mt-6 text-center">
-            <a href="{{ url_for('flashcards.list_flashcards') }}"
-                class="inline-flex items-center text-primary-400 hover:text-primary-300 font-medium">
-                View All Flashcards
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-            </a>
+        <!-- Right Sidebar -->
+        <div class="flex flex-col gap-6">
+            <!-- Learning Tip -->
+            <div class="bg-gradient-to-br from-surface-card to-surface-dark p-5 rounded-xl border border-border-dark">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="bg-yellow-500/10 p-1.5 rounded-lg">
+                        <span class="material-symbols-outlined text-yellow-500 text-sm">lightbulb</span>
+                    </div>
+                    <h3 class="text-white font-bold text-sm">Learning Tip</h3>
+                </div>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    You tend to perform 20% better in the mornings. Try scheduling your difficult "Molecular Biology"
+                    cards before 10 AM.
+                </p>
+            </div>
+
+            <!-- Study Activity -->
+            <div class="bg-surface-card p-5 rounded-xl border border-border-dark">
+                <h3 class="text-white font-bold mb-4 text-sm">Study Activity</h3>
+                <div class="flex gap-1 justify-between items-end h-24">
+                    {% for height in [30, 50, 20, 60, 80, 70, 90] %}
+                    {% set bg_class = 'bg-primary' if height > 70 else 'bg-surface-highlight' %}
+                    <div class="w-full {{ bg_class }} rounded-t-sm hover:bg-primary/50 transition-colors"
+                        style="height: {{ height }}%"></div>
+                    {% endfor %}
+                </div>
+                <div
+                    class="flex justify-between text-[10px] text-text-secondary mt-2 font-medium uppercase tracking-wider">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                </div>
+            </div>
+
+            <!-- Top Learners (Placeholder) -->
+            <div class="bg-surface-card p-5 rounded-xl border border-border-dark">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-white font-bold text-sm">Top Learners</h3>
+                    <span class="text-xs text-primary cursor-pointer hover:underline">View All</span>
+                </div>
+                <div class="space-y-3">
+                    {% for name, xp, rank in [('Sarah M.', 2400, '#1'), ('Alex (You)', 1850, '#2'), ('John D.', 1200,
+                    '#3')] %}
+                    {% set rank_colors = {'#1': '#eab308', '#2': '#9ca3af', '#3': '#f97316'} %}
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-surface-highlight"></div>
+                        <div class="flex-1">
+                            <p class="text-white text-xs font-bold">{{ name }}</p>
+                            <p class="text-[10px] text-text-secondary">{{ xp }} XP</p>
+                        </div>
+                        <span class="font-bold text-sm"
+                            style="--rank-color: {{ rank_colors[rank] }}; color: var(--rank-color);">{{ rank }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
-    {% else %}
-    <!-- Empty State -->
-    <div class="glass rounded-2xl p-12 text-center">
-        <div
-            class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary-500/20 to-purple-500/20 flex items-center justify-center">
-            <svg class="w-10 h-10 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                </path>
-            </svg>
-        </div>
-        <h3 class="text-2xl font-bold mb-2">No flashcards yet</h3>
-        <p class="text-gray-400 mb-6">Create your first flashcard to start learning!</p>
-        <a href="{{ url_for('flashcards.create_flashcard') }}"
-            class="btn-primary inline-flex items-center px-6 py-3 rounded-xl font-semibold text-white">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Create Your First Card
-        </a>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

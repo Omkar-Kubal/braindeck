@@ -1,31 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Flashcard App{% endblock %}</title>
+    <title>{% block title %}BrainDeck{% endblock %}</title>
     <meta name="description" content="AI-powered flashcard application for effective learning">
-    
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
     <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                        }
+                        "primary": "#FACC15",
+                        "primary-dark": "#EAB308",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-dark": "#16202a",
+                        "surface-card": "#1c2834",
+                        "surface-highlight": "#233648",
+                        "border-dark": "#2d3b48",
+                        "text-secondary": "#92adc9",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
@@ -36,11 +54,11 @@
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-20px)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         },
                         glow: {
-                            '0%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)' },
-                            '100%': { boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' },
+                            '0%': { boxShadow: '0 0 20px rgba(250, 204, 21, 0.2)' },
+                            '100%': { boxShadow: '0 0 40px rgba(250, 204, 21, 0.4)' },
                         },
                         slideUp: {
                             '0%': { opacity: 0, transform: 'translateY(20px)' },
@@ -55,186 +73,308 @@
             }
         }
     </script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        * {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
         }
-        
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #101922;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2d3b48;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FACC15;
+        }
+
+        /* Glass effect */
+        .glass {
+            background: rgba(22, 32, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 59, 72, 0.5);
+        }
+
+        /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+
+        /* Button hover effects */
+        .btn-primary {
+            background: #FACC15;
+            color: #101922;
+            transition: all 0.3s ease;
         }
-        
+
+        .btn-primary:hover {
+            background: #EAB308;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);
+        }
+
+        .btn-secondary {
+            background: #233648;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #2d465e;
+        }
+
+        /* Card hover effects */
         .card-hover {
             transition: all 0.3s ease;
         }
-        
+
         .card-hover:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-        }
-        
-        /* Animated background */
-        .animated-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-        
-        .animated-bg::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(217, 70, 239, 0.1) 0%, transparent 40%);
-            animation: rotate 30s linear infinite;
-        }
-        
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #1e1b4b;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #4f46e5;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6366f1;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(250, 204, 21, 0.3);
         }
     </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen gradient-bg text-white">
-    <div class="animated-bg"></div>
-    
-    <!-- Navigation -->
-    <nav class="glass sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="{{ url_for('main.index') }}" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold gradient-text">FlashMaster</span>
-                </a>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ url_for('main.index') }}" class="text-gray-300 hover:text-white transition-colors font-medium">Dashboard</a>
-                    <a href="{{ url_for('flashcards.list_flashcards') }}" class="text-gray-300 hover:text-white transition-colors font-medium">Flashcards</a>
-                    <a href="{{ url_for('flashcards.list_decks') }}" class="text-gray-300 hover:text-white transition-colors font-medium">Decks</a>
-                    <a href="{{ url_for('study.study_home') }}" class="text-gray-300 hover:text-white transition-colors font-medium">Study</a>
-                    <a href="{{ url_for('study.reports') }}" class="text-gray-300 hover:text-white transition-colors font-medium">Reports</a>
-                </div>
-                
+
+<body class="bg-background-dark text-white font-display min-h-screen flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 h-screen bg-[#111a22] border-r border-border-dark flex flex-col shrink-0 hidden md:flex">
+        <!-- Logo -->
+        <div class="p-6 flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-slate-900 shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-[20px]">flash_on</span>
+            </div>
+            <div>
+                <h1 class="text-white text-lg font-bold leading-none tracking-tight">BrainDeck</h1>
+                <p class="text-text-secondary text-xs font-normal mt-1">AI Learning</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-4 py-2 flex flex-col gap-1 overflow-y-auto">
+            <a href="{{ url_for('main.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if request.endpoint == 'main.index' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-surface-highlight hover:text-white{% endif %} transition-colors group">
+                <span
+                    class="material-symbols-outlined {% if request.endpoint == 'main.index' %}fill{% endif %}">dashboard</span>
+                <span class="text-sm font-medium">Dashboard</span>
+            </a>
+            <a href="{{ url_for('flashcards.list_decks') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if 'flashcards' in request.endpoint %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-surface-highlight hover:text-white{% endif %} transition-colors group">
+                <span class="material-symbols-outlined">style</span>
+                <span class="text-sm font-medium">My Decks</span>
+            </a>
+            <a href="{{ url_for('flashcards.list_flashcards') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors group">
+                <span class="material-symbols-outlined">library_books</span>
+                <span class="text-sm font-medium">All Cards</span>
+            </a>
+            <a href="{{ url_for('study.study_home') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if 'study' in request.endpoint %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-surface-highlight hover:text-white{% endif %} transition-colors group">
+                <span class="material-symbols-outlined">school</span>
+                <span class="text-sm font-medium">Study</span>
+            </a>
+            <a href="{{ url_for('study.reports') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors group">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <span class="text-sm font-medium">Reports</span>
+            </a>
+
+            <div class="mt-6 mb-2">
+                <p class="text-text-secondary text-xs font-bold uppercase tracking-wider px-3">AI Tools</p>
+            </div>
+            <a href="{{ url_for('ai.generate') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors group">
+                <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                <span class="text-sm font-medium">Generate Cards</span>
+            </a>
+
+            <div class="mt-auto"></div>
+            <a href="#"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors group mb-4">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="text-sm font-medium">Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Top Header -->
+        <header
+            class="flex items-center justify-between px-6 py-4 border-b border-border-dark bg-[#111a22]/95 backdrop-blur-sm z-10 shrink-0">
+            <div class="flex items-center gap-4">
                 <!-- Mobile menu button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
+                <button id="mobile-menu-btn" class="md:hidden text-text-secondary hover:text-white">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <!-- Breadcrumb -->
+                <div class="hidden md:flex items-center gap-2 text-text-secondary text-sm">
+                    <span>Home</span>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    <span class="text-white font-medium">{% block breadcrumb %}Dashboard{% endblock %}</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Search -->
+                <div class="relative hidden sm:block">
+                    <span
+                        class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">search</span>
+                    <input type="text" placeholder="Search decks..."
+                        class="bg-surface-highlight border-none text-white text-sm rounded-lg pl-10 pr-4 py-2 w-64 focus:ring-2 focus:ring-primary placeholder:text-text-secondary/70">
+                </div>
+                <!-- Notifications -->
+                <button
+                    class="w-10 h-10 rounded-lg flex items-center justify-center text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
                 </button>
             </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden glass border-t border-white/10">
-            <div class="px-4 py-4 space-y-3">
-                <a href="{{ url_for('main.index') }}" class="block py-2 text-gray-300 hover:text-white">Dashboard</a>
-                <a href="{{ url_for('flashcards.list_flashcards') }}" class="block py-2 text-gray-300 hover:text-white">Flashcards</a>
-                <a href="{{ url_for('flashcards.list_decks') }}" class="block py-2 text-gray-300 hover:text-white">Decks</a>
-                <a href="{{ url_for('study.study_home') }}" class="block py-2 text-gray-300 hover:text-white">Study</a>
-                <a href="{{ url_for('study.reports') }}" class="block py-2 text-gray-300 hover:text-white">Reports</a>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                {% for category, message in messages %}
-                    <div class="glass rounded-xl p-4 mb-3 animate-slide-up flex items-center justify-between
-                        {% if category == 'error' %}border-red-500/50 bg-red-500/10
-                        {% elif category == 'warning' %}border-yellow-500/50 bg-yellow-500/10
-                        {% else %}border-green-500/50 bg-green-500/10{% endif %}">
-                        <span>{{ message }}</span>
-                        <button onclick="this.parentElement.remove()" class="ml-4 text-white/70 hover:text-white">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+            <!-- Profile / Auth -->
+            {% if current_user.is_authenticated %}
+            <div class="relative group">
+                <button
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center text-slate-900 font-bold cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                    {{ current_user.username[0]|upper }}
+                </button>
+                <div
+                    class="absolute right-0 mt-2 w-48 bg-surface-card border border-border-dark rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                    <div class="p-3 border-b border-border-dark">
+                        <p class="text-white font-medium text-sm">{{ current_user.username }}</p>
+                        <p class="text-text-secondary text-xs">{{ current_user.email }}</p>
                     </div>
-                {% endfor %}
+                    <a href="{{ url_for('auth.profile') }}"
+                        class="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-highlight hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                        Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}"
+                        class="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors rounded-b-xl">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                        Sign Out
+                    </a>
+                </div>
             </div>
-        {% endif %}
-    {% endwith %}
-    
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {% block content %}{% endblock %}
-    </main>
-    
-    <!-- Footer -->
-    <footer class="glass mt-auto py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; 2024 FlashMaster. Built with ❤️ for better learning.</p>
+            {% else %}
+            <div class="flex items-center gap-2">
+                <a href="{{ url_for('auth.login') }}"
+                    class="px-4 py-2 text-sm font-medium text-text-secondary hover:text-white transition-colors">
+                    Sign In
+                </a>
+                <a href="{{ url_for('auth.signup') }}"
+                    class="px-4 py-2 text-sm font-bold bg-primary text-slate-900 rounded-lg hover:bg-primary-dark transition-colors">
+                    Sign Up
+                </a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="px-6 pt-4">
+            {% for category, message in messages %}
+            <div class="glass rounded-xl p-4 mb-3 animate-slide-up flex items-center justify-between
+                            {% if category == 'error' %}border-red-500/50 bg-red-500/10
+                            {% elif category == 'warning' %}border-yellow-500/50 bg-yellow-500/10
+                            {% else %}border-green-500/50 bg-green-500/10{% endif %}">
+                <span>{{ message }}</span>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-white/70 hover:text-white">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            {% endfor %}
         </div>
-    </footer>
-    
+        {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto bg-[#111a22] p-4 md:p-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMobileMenu()"></div>
+        <aside
+            class="absolute left-0 top-0 w-64 h-full bg-[#111a22] border-r border-border-dark flex flex-col animate-slide-in">
+            <div class="p-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-slate-900">
+                        <span class="material-symbols-outlined text-[20px]">flash_on</span>
+                    </div>
+                    <h1 class="text-white text-lg font-bold">BrainDeck</h1>
+                </div>
+                <button onclick="closeMobileMenu()" class="text-text-secondary hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <nav class="flex-1 px-4 py-2 flex flex-col gap-1">
+                <a href="{{ url_for('main.index') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a href="{{ url_for('flashcards.list_decks') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white">
+                    <span class="material-symbols-outlined">style</span>
+                    <span class="text-sm font-medium">My Decks</span>
+                </a>
+                <a href="{{ url_for('flashcards.list_flashcards') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white">
+                    <span class="material-symbols-outlined">library_books</span>
+                    <span class="text-sm font-medium">All Cards</span>
+                </a>
+                <a href="{{ url_for('study.study_home') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white">
+                    <span class="material-symbols-outlined">school</span>
+                    <span class="text-sm font-medium">Study</span>
+                </a>
+                <a href="{{ url_for('study.reports') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-surface-highlight hover:text-white">
+                    <span class="material-symbols-outlined">bar_chart</span>
+                    <span class="text-sm font-medium">Reports</span>
+                </a>
+            </nav>
+        </aside>
+    </div>
+
     <script>
         // Mobile menu toggle
-        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function () {
+            document.getElementById('mobile-menu').classList.remove('hidden');
         });
+
+        function closeMobileMenu() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
     </script>
-    
+
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

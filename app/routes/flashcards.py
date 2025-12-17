@@ -89,38 +89,80 @@ def delete_flashcard(id):
 
 @flashcards_bp.route('/decks')
 def list_decks():
-    """List all decks."""
-    decks = Deck.query.order_by(Deck.created_at.desc()).all()
-    return render_template('flashcards/decks.html', decks=decks)
+    """List all decks with hierarchical structure."""
+    parent_id = request.args.get('parent_id', type=int)
+    
+    if parent_id:
+        # Show sub-decks of a parent
+        parent_deck = Deck.query.get(parent_id)
+        decks = Deck.query.filter_by(parent_id=parent_id).order_by(Deck.name).all()
+        breadcrumb = parent_deck.get_breadcrumb() if parent_deck else []
+    else:
+        # Show root-level decks only
+        decks = Deck.query.filter_by(parent_id=None).order_by(Deck.name).all()
+        parent_deck = None
+        breadcrumb = []
+    
+    return render_template('flashcards/decks.html', 
+                         decks=decks, 
+                         parent_deck=parent_deck,
+                         breadcrumb=breadcrumb)
 
 
 @flashcards_bp.route('/decks/create', methods=['GET', 'POST'])
 def create_deck():
-    """Create a new deck."""
+    """Create a new deck or folder."""
+    parent_id = request.args.get('parent_id', type=int)
+    
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         description = request.form.get('description', '').strip()
-        category = request.form.get('category', '').strip()
-        tags = request.form.get('tags', '').strip()
+        is_folder = request.form.get('is_folder') == 'on'
+        form_parent_id = request.form.get('parent_id', type=int)
         
         if not name:
             flash('Please enter a deck name.', 'error')
-            return redirect(url_for('flashcards.create_deck'))
+            return redirect(url_for('flashcards.create_deck', parent_id=parent_id))
         
-        deck = Deck(name=name, description=description, category=category, tags=tags)
+        deck = Deck(
+            name=name,
+            description=description,
+            parent_id=form_parent_id or parent_id
+        )
+        
         db.session.add(deck)
         db.session.commit()
-        flash('Deck created successfully!', 'success')
+        
+        deck_type = 'folder' if is_folder else 'deck'
+        flash(f'{deck_type.capitalize()} "{name}" created successfully!', 'success')
+        
+        # Return to the parent folder or root
+        if deck.parent_id:
+            return redirect(url_for('flashcards.list_decks', parent_id=deck.parent_id))
         return redirect(url_for('flashcards.list_decks'))
     
-    return render_template('flashcards/create_deck.html')
+    # Get parent deck for breadcrumb
+    parent_deck = Deck.query.get(parent_id) if parent_id else None
+    breadcrumb = parent_deck.get_breadcrumb() if parent_deck else []
+    
+    return render_template('flashcards/create_deck.html', 
+                         parent_deck=parent_deck,
+                         parent_id=parent_id,
+                         breadcrumb=breadcrumb)
 
 
-@flashcards_bp.route('/decks/<int:id>/delete', methods=['POST'])
-def delete_deck(id):
-    """Delete a deck and all its flashcards."""
-    deck = Deck.query.get_or_404(id)
+@flashcards_bp.route('/decks/<int:deck_id>/delete', methods=['POST'])
+def delete_deck(deck_id):
+    """Delete a deck and all its flashcards and sub-decks."""
+    deck = Deck.query.get_or_404(deck_id)
+    parent_id = deck.parent_id
+    
+    # Delete will cascade to flashcards and children
     db.session.delete(deck)
     db.session.commit()
     flash('Deck deleted successfully!', 'success')
+    
+    # Return to parent or root
+    if parent_id:
+        return redirect(url_for('flashcards.list_decks', parent_id=parent_id))
     return redirect(url_for('flashcards.list_decks'))

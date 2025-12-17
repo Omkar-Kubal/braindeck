@@ -1,125 +1,310 @@
 {% extends "base.html" %}
 
-{% block title %}Study Card - FlashMaster{% endblock %}
+{% block title %}Study Session - BrainDeck{% endblock %}
+{% block breadcrumb %}Study Session{% endblock %}
+
+{% block extra_css %}
+<style>
+    .flip-card {
+        perspective: 1000px;
+        cursor: pointer;
+    }
+
+    .flip-card-inner {
+        position: relative;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+        transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .flip-card-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: rotateY(180deg);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="animate-fade-in max-w-3xl mx-auto">
-    <!-- Progress Bar -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
-            <span>Card {{ current }} of {{ total }}</span>
-            <div class="flex items-center space-x-4">
-                <span class="text-emerald-400">✓ {{ correct }}</span>
-                <span class="text-red-400">✗ {{ wrong }}</span>
+<div class="max-w-4xl mx-auto flex flex-col gap-6">
+    <!-- Session Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('study.study_home') }}"
+                class="p-2 rounded-lg hover:bg-surface-highlight text-text-secondary hover:text-white transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-xl font-bold text-white">Study Session</h1>
+                <p class="text-sm text-text-secondary">Card {{ current }} of {{ total }}</p>
             </div>
         </div>
-        <div class="h-2 glass rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all duration-300"
-                style="width: {{ (current / total * 100)|round }}%"></div>
-        </div>
-    </div>
 
-    <!-- Flashcard -->
-    <div id="flashcard" class="relative" style="perspective: 1000px;">
-        <div id="card-inner" class="relative transition-transform duration-500" style="transform-style: preserve-3d;">
-
-            <!-- Question Side -->
-            <div id="question-side"
-                class="glass rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-center items-center text-center cursor-pointer"
-                onclick="flipCard()">
-                <div
-                    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-primary-500/20 text-primary-300 text-xs font-medium">
-                    Question
-                </div>
-
-                <p class="text-2xl md:text-3xl font-semibold text-white leading-relaxed">
-                    {{ card.question }}
-                </p>
-
-                <p class="text-gray-500 mt-8 text-sm flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
-                        </path>
-                    </svg>
-                    Click to reveal answer
-                </p>
+        <!-- Session Timer (optional) -->
+        <div class="flex items-center gap-4">
+            <div id="session-timer"
+                class="hidden flex items-center gap-2 px-4 py-2 bg-surface-card rounded-lg border border-border-dark">
+                <span class="material-symbols-outlined text-primary">timer</span>
+                <span id="timer-display" class="text-white font-mono">00:00</span>
             </div>
-
-            <!-- Answer Side (hidden by default) -->
-            <div id="answer-side"
-                class="glass rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-center items-center text-center hidden">
-                <div
-                    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium">
-                    Answer
-                </div>
-
-                <p class="text-2xl md:text-3xl font-semibold text-white leading-relaxed mb-8">
-                    {{ card.answer }}
-                </p>
-
-                <!-- Rating Buttons -->
-                <div class="w-full">
-                    <p class="text-gray-400 text-sm mb-4">How well did you know this?</p>
-                    <form action="{{ url_for('study.submit_answer') }}" method="POST">
-                        <input type="hidden" name="card_id" value="{{ card.id }}">
-                        <div class="grid grid-cols-3 gap-3">
-                            <button type="submit" name="quality" value="1"
-                                class="glass rounded-xl py-4 text-center hover:bg-red-500/20 hover:border-red-500/50 transition-all group">
-                                <span class="text-2xl block mb-1">😕</span>
-                                <span class="text-red-400 font-medium text-sm">Again</span>
-                            </button>
-                            <button type="submit" name="quality" value="3"
-                                class="glass rounded-xl py-4 text-center hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-all group">
-                                <span class="text-2xl block mb-1">🤔</span>
-                                <span class="text-yellow-400 font-medium text-sm">Hard</span>
-                            </button>
-                            <button type="submit" name="quality" value="5"
-                                class="glass rounded-xl py-4 text-center hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all group">
-                                <span class="text-2xl block mb-1">😊</span>
-                                <span class="text-emerald-400 font-medium text-sm">Easy</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <button id="toggle-timer-btn" onclick="toggleTimer()"
+                class="px-3 py-2 text-sm rounded-lg bg-surface-dark hover:bg-surface-highlight text-text-secondary hover:text-white transition-colors">
+                <span class="material-symbols-outlined">timer</span>
+            </button>
         </div>
     </div>
-
-    <!-- Navigation -->
-    <div class="flex items-center justify-center mt-8 space-x-4">
-        <a href="{{ url_for('study.study_home') }}"
-            class="px-6 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
-            Exit Study
-        </a>
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 bg-surface-highlight px-3 py-1.5 rounded-lg">
+            <span class="material-symbols-outlined text-green-400 text-lg">check_circle</span>
+            <span class="text-sm font-bold text-white">{{ correct }}</span>
+        </div>
+        <div class="flex items-center gap-2 bg-surface-highlight px-3 py-1.5 rounded-lg">
+            <span class="material-symbols-outlined text-red-400 text-lg">cancel</span>
+            <span class="text-sm font-bold text-white">{{ wrong }}</span>
+        </div>
     </div>
 </div>
 
+<!-- Progress Bar -->
+<div class="h-2 w-full rounded-full bg-surface-highlight overflow-hidden">
+    <div class="h-full bg-primary rounded-full transition-all duration-300"
+        style="width: {{ (current / total * 100)|int }}%"></div>
+</div>
+
+<!-- Flashcard -->
+<div class="flip-card" id="flashcard" onclick="toggleCard()">
+    <div class="flip-card-inner">
+        <!-- Front (Question) -->
+        <div
+            class="flip-card-front bg-surface-card rounded-2xl border border-border-dark p-8 flex flex-col min-h-[400px]">
+            <div class="flex items-center justify-between mb-6">
+                <span
+                    class="text-xs font-bold text-primary uppercase tracking-wider bg-primary/10 px-3 py-1 rounded-full">Question</span>
+                <span class="text-xs text-text-secondary">Tap to flip</span>
+            </div>
+            <div class="flex-1 flex items-center justify-center text-center">
+                <p class="text-2xl md:text-3xl font-medium text-white leading-relaxed">{{ card.question }}</p>
+            </div>
+        </div>
+
+        <!-- Back (Answer) -->
+        <div
+            class="flip-card-back bg-gradient-to-br from-surface-card to-surface-dark rounded-2xl border border-primary/30 p-8 flex flex-col min-h-[400px]">
+            <div class="flex items-center justify-between mb-6">
+                <span
+                    class="text-xs font-bold text-green-400 uppercase tracking-wider bg-green-400/10 px-3 py-1 rounded-full">Answer</span>
+                <span class="text-xs text-text-secondary">Tap to flip back</span>
+            </div>
+            <div class="flex-1 flex items-center justify-center text-center">
+                <p class="text-xl md:text-2xl font-medium text-white leading-relaxed">{{ card.answer }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Answer Input (for AI evaluation) -->
+<div id="answer-section" class="bg-surface-card rounded-xl border border-border-dark p-6" style="display: none;">
+    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary mb-3 block">Your Answer</label>
+    <textarea id="user-answer"
+        class="w-full resize-none rounded-lg bg-surface-dark border border-border-dark text-white p-4 text-base focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px]"
+        placeholder="Type your answer before revealing..."></textarea>
+    <button onclick="evaluateAnswer()"
+        class="mt-3 btn-secondary px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        Evaluate with AI
+    </button>
+</div>
+
+<!-- AI Evaluation Result -->
+<div id="evaluation-result" class="rounded-xl border border-primary/30 bg-primary/5 overflow-hidden"
+    style="display: none;">
+    <div class="bg-primary/10 px-6 py-4 border-b border-primary/10 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-slate-900">auto_awesome</span>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white">AI Evaluation</h3>
+                <p class="text-xs text-text-secondary">Powered by BrainDeck AI</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <span class="block text-2xl font-bold text-primary" id="eval-score">--%</span>
+            <span class="block text-xs font-medium text-primary/80">Match Score</span>
+        </div>
+    </div>
+    <div class="p-6">
+        <p class="text-sm text-slate-300 leading-relaxed" id="eval-feedback"></p>
+        <div class="mt-4 p-4 bg-surface-dark rounded-lg border border-border-dark">
+            <p class="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Model Answer</p>
+            <p class="text-sm text-white">{{ card.answer }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Buttons -->
+<div class="flex flex-col gap-3">
+    <p class="text-center text-sm text-text-secondary">How well did you know this?</p>
+    <form action="{{ url_for('study.submit_answer') }}" method="POST" class="grid grid-cols-4 gap-3">
+        <input type="hidden" name="card_id" value="{{ card.id }}">
+
+        <button type="submit" name="quality" value="0"
+            class="group flex flex-col items-center justify-center gap-1 p-4 rounded-xl border border-red-500/30 bg-red-500/5 hover:bg-red-500/10 transition-all hover:-translate-y-0.5">
+            <span class="text-sm font-bold text-red-400 uppercase">Again</span>
+            <span class="text-xs text-red-400/60">
+                < 1 min</span>
+        </button>
+
+        <button type="submit" name="quality" value="2"
+            class="group flex flex-col items-center justify-center gap-1 p-4 rounded-xl border border-orange-500/30 bg-orange-500/5 hover:bg-orange-500/10 transition-all hover:-translate-y-0.5">
+            <span class="text-sm font-bold text-orange-400 uppercase">Hard</span>
+            <span class="text-xs text-orange-400/60">2 days</span>
+        </button>
+
+        <button type="submit" name="quality" value="4"
+            class="group flex flex-col items-center justify-center gap-1 p-4 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-all hover:-translate-y-0.5 ring-1 ring-primary/20">
+            <span class="text-sm font-bold text-primary uppercase">Good</span>
+            <span class="text-xs text-primary/60">4 days</span>
+        </button>
+
+        <button type="submit" name="quality" value="5"
+            class="group flex flex-col items-center justify-center gap-1 p-4 rounded-xl border border-green-500/30 bg-green-500/5 hover:bg-green-500/10 transition-all hover:-translate-y-0.5">
+            <span class="text-sm font-bold text-green-400 uppercase">Easy</span>
+            <span class="text-xs text-green-400/60">7 days</span>
+        </button>
+    </form>
+    <p class="text-center text-xs text-text-secondary">Press 1-4 on keyboard for quick rating</p>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
     let isFlipped = false;
 
-    function flipCard() {
-        if (!isFlipped) {
-            document.getElementById('question-side').classList.add('hidden');
-            document.getElementById('answer-side').classList.remove('hidden');
-            isFlipped = true;
+    function toggleCard() {
+        const card = document.getElementById('flashcard');
+        isFlipped = !isFlipped;
+        card.classList.toggle('flipped', isFlipped);
+
+        // Show answer section when flipped
+        if (isFlipped) {
+            document.getElementById('answer-section').style.display = 'none';
         }
+    }
+
+    async function evaluateAnswer() {
+        const userAnswer = document.getElementById('user-answer').value.trim();
+        if (!userAnswer) {
+            alert('Please enter your answer first.');
+            return;
+        }
+
+        try {
+            const response = await fetch('{{ url_for("ai.evaluate_answer") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question: {{ card.question | tojson }},
+                expected_answer: {{ card.answer | tojson }},
+        student_answer: userAnswer,
+            card_type: 'qa'
+    })
+            });
+
+    const data = await response.json();
+
+    if (data.success) {
+        document.getElementById('eval-score').textContent = data.score_percentage + '%';
+        document.getElementById('eval-feedback').textContent = data.feedback;
+        document.getElementById('evaluation-result').style.display = 'block';
+
+        // Also flip the card to show answer
+        if (!isFlipped) toggleCard();
+    } else {
+        throw new Error(data.error || 'Evaluation failed');
+    }
+        } catch (error) {
+        console.error('Evaluation error:', error);
+        // Just flip the card on error
+        if (!isFlipped) toggleCard();
+    }
     }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', function (e) {
-        if (e.code === 'Space' && !isFlipped) {
-            e.preventDefault();
-            flipCard();
-        } else if (isFlipped) {
-            if (e.key === '1') {
-                document.querySelector('button[value="1"]').click();
-            } else if (e.key === '2' || e.key === '3') {
-                document.querySelector('button[value="3"]').click();
-            } else if (e.key === '4' || e.key === '5') {
-                document.querySelector('button[value="5"]').click();
-            }
+        switch (e.key) {
+            case ' ':
+                e.preventDefault();
+                toggleCard();
+                break;
+            case '1':
+                document.querySelector('button[value="0"]')?.click();
+                break;
+            case '2':
+                document.querySelector('button[value="2"]')?.click();
+                break;
+            case '3':
+                document.querySelector('button[value="4"]')?.click();
+                break;
+            case '4':
+                document.querySelector('button[value="5"]')?.click();
+                break;
         }
     });
+
+    // Session Timer functionality
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let timerEnabled = false;
+
+    function toggleTimer() {
+        timerEnabled = !timerEnabled;
+        const timerDisplay = document.getElementById('session-timer');
+
+        if (timerEnabled) {
+            timerDisplay.classList.remove('hidden');
+            timerDisplay.classList.add('flex');
+            startTimer();
+        } else {
+            timerDisplay.classList.add('hidden');
+            timerDisplay.classList.remove('flex');
+            stopTimer();
+        }
+    }
+
+    function startTimer() {
+        if (timerInterval) return;
+
+        timerInterval = setInterval(() => {
+            timerSeconds++;
+            updateTimerDisplay();
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timerSeconds / 60);
+        const seconds = timerSeconds % 60;
+        const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        document.getElementById('timer-display').textContent = display;
+    }
 </script>
 {% endblock %}

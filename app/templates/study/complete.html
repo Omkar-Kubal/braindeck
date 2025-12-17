@@ -1,66 +1,77 @@
 {% extends "base.html" %}
 
-{% block title %}Study Complete - FlashMaster{% endblock %}
+{% block title %}Session Complete - BrainDeck{% endblock %}
+{% block breadcrumb %}Study Complete{% endblock %}
 
 {% block content %}
-<div class="animate-fade-in max-w-2xl mx-auto text-center">
-    <!-- Celebration -->
-    <div class="mb-8">
-        <div
-            class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center animate-float">
-            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        <h1 class="text-4xl font-extrabold gradient-text mb-4">Study Session Complete!</h1>
-        <p class="text-xl text-gray-400">Great job! Keep up the momentum.</p>
+<div class="max-w-2xl mx-auto text-center flex flex-col gap-8 py-12">
+    <!-- Success Animation -->
+    <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto animate-float">
+        <span class="material-symbols-outlined text-5xl text-primary fill">emoji_events</span>
+    </div>
+
+    <!-- Congratulations -->
+    <div>
+        <h1 class="text-4xl font-bold text-white mb-3">Session Complete!</h1>
+        <p class="text-text-secondary text-lg">Great job finishing your study session.</p>
     </div>
 
     <!-- Stats -->
-    <div class="glass rounded-2xl p-8 mb-8">
-        <div class="grid grid-cols-3 gap-6">
-            <div class="text-center">
-                <p class="text-4xl font-bold text-white">{{ total }}</p>
-                <p class="text-gray-400 text-sm">Cards Studied</p>
-            </div>
-            <div class="text-center">
-                <p class="text-4xl font-bold text-emerald-400">{{ correct }}</p>
-                <p class="text-gray-400 text-sm">Correct</p>
-            </div>
-            <div class="text-center">
-                <p class="text-4xl font-bold text-red-400">{{ wrong }}</p>
-                <p class="text-gray-400 text-sm">Need Review</p>
-            </div>
+    <div class="grid grid-cols-3 gap-4">
+        <div class="bg-surface-card p-6 rounded-xl border border-border-dark">
+            <span class="material-symbols-outlined text-3xl text-primary mb-2">library_books</span>
+            <p class="text-3xl font-bold text-white">{{ total }}</p>
+            <p class="text-sm text-text-secondary">Cards Studied</p>
         </div>
+        <div class="bg-surface-card p-6 rounded-xl border border-green-500/30">
+            <span class="material-symbols-outlined text-3xl text-green-400 mb-2">check_circle</span>
+            <p class="text-3xl font-bold text-green-400">{{ correct }}</p>
+            <p class="text-sm text-text-secondary">Correct</p>
+        </div>
+        <div class="bg-surface-card p-6 rounded-xl border border-red-500/30">
+            <span class="material-symbols-outlined text-3xl text-red-400 mb-2">cancel</span>
+            <p class="text-3xl font-bold text-red-400">{{ wrong }}</p>
+            <p class="text-sm text-text-secondary">Need Review</p>
+        </div>
+    </div>
 
-        {% if total > 0 %}
-        <div class="mt-8">
-            <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
-                <span>Accuracy</span>
-                <span class="font-medium text-white">{{ ((correct / total) * 100)|round|int }}%</span>
-            </div>
-            <div class="h-3 glass rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500"
-                    style="width: {{ ((correct / total) * 100)|round }}%"></div>
-            </div>
+    <!-- Accuracy -->
+    {% set accuracy = (correct / total * 100)|round if total > 0 else 0 %}
+    <div class="bg-surface-card p-8 rounded-xl border border-border-dark">
+        <p class="text-sm text-text-secondary mb-2">Accuracy</p>
+        <div class="flex items-center justify-center gap-4 mb-4">
+            <span
+                class="text-5xl font-bold {% if accuracy >= 70 %}text-green-400{% elif accuracy >= 40 %}text-yellow-400{% else %}text-red-400{% endif %}">
+                {{ accuracy }}%
+            </span>
         </div>
+        <div class="h-3 w-full max-w-md mx-auto rounded-full bg-surface-highlight overflow-hidden">
+            <div class="h-full rounded-full {% if accuracy >= 70 %}bg-green-500{% elif accuracy >= 40 %}bg-yellow-500{% else %}bg-red-500{% endif %}"
+                style="width: {{ accuracy }}%"></div>
+        </div>
+    </div>
+
+    <!-- Performance Message -->
+    <div class="bg-gradient-to-r from-surface-card to-surface-dark p-6 rounded-xl border border-border-dark">
+        {% if accuracy >= 80 %}
+        <p class="text-lg text-white font-medium">🌟 Excellent work! You've mastered most of these cards!</p>
+        {% elif accuracy >= 60 %}
+        <p class="text-lg text-white font-medium">👍 Good progress! Keep reviewing to solidify your knowledge.</p>
+        {% elif accuracy >= 40 %}
+        <p class="text-lg text-white font-medium">💪 You're getting there! A bit more practice will help.</p>
+        {% else %}
+        <p class="text-lg text-white font-medium">📚 Don't worry! Learning takes time. Keep studying!</p>
         {% endif %}
     </div>
 
-    <!-- Actions -->
-    <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+    <!-- Action Buttons -->
+    <div class="flex justify-center gap-4">
         <a href="{{ url_for('study.study_session') }}"
-            class="btn-primary px-8 py-3 rounded-xl font-semibold text-white inline-flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                </path>
-            </svg>
+            class="btn-primary px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined">replay</span>
             Study Again
         </a>
-        <a href="{{ url_for('main.index') }}"
-            class="px-8 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+        <a href="{{ url_for('main.index') }}" class="btn-secondary px-6 py-3 rounded-lg font-medium">
             Back to Dashboard
         </a>
     </div>

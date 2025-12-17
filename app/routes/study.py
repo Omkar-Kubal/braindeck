@@ -25,8 +25,9 @@ def study_home():
 
 @study_bp.route('/session')
 def study_session():
-    """Start a study session with random cards."""
+    """Start a study session with adaptive or random ordering."""
     deck_id = request.args.get('deck_id', type=int)
+    adaptive = request.args.get('adaptive', 'true').lower() == 'true'  # Default to adaptive
     
     if deck_id:
         cards = Flashcard.query.filter_by(deck_id=deck_id).all()
@@ -39,8 +40,12 @@ def study_session():
         flash('No flashcards available. Add some cards first!', 'warning')
         return redirect(url_for('study.study_home'))
     
-    # Shuffle cards
-    random.shuffle(cards)
+    # Use adaptive ordering (prioritize difficult cards) or random
+    if adaptive:
+        # Sort by priority score (highest first) - struggling cards appear more
+        cards.sort(key=lambda card: card.priority_score, reverse=True)
+    else:
+        random.shuffle(cards)
     
     # Store card IDs in session
     session['study_cards'] = [c.id for c in cards]

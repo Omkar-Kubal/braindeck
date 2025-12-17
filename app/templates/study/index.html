@@ -1,134 +1,139 @@
 {% extends "base.html" %}
 
-{% block title %}Study - FlashMaster{% endblock %}
+{% block title %}Study - BrainDeck{% endblock %}
+{% block breadcrumb %}Study{% endblock %}
 
 {% block content %}
-<div class="animate-fade-in">
+<div class="max-w-4xl mx-auto flex flex-col gap-8">
     <!-- Header -->
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-extrabold gradient-text mb-4">Study Mode</h1>
-        <p class="text-xl text-gray-400">Choose how you want to learn today</p>
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-white mb-2">Study Mode</h1>
+        <p class="text-text-secondary">Choose how you want to practice your flashcards.</p>
     </div>
 
-    <!-- Stats Bar -->
-    <div class="glass rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-around text-center">
-        <div class="mb-4 md:mb-0">
-            <p class="text-3xl font-bold gradient-text">{{ total_cards }}</p>
-            <p class="text-gray-400 text-sm">Total Cards</p>
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-surface-card p-5 rounded-xl border border-border-dark text-center">
+            <span class="material-symbols-outlined text-3xl text-primary mb-2">library_books</span>
+            <p class="text-2xl font-bold text-white">{{ total_cards }}</p>
+            <p class="text-sm text-text-secondary">Total Cards</p>
         </div>
-        <div class="w-px h-12 bg-white/10 hidden md:block"></div>
-        <div class="mb-4 md:mb-0">
-            <p class="text-3xl font-bold text-emerald-400">{{ due_cards }}</p>
-            <p class="text-gray-400 text-sm">Due for Review</p>
+        <div class="bg-surface-card p-5 rounded-xl border border-border-dark text-center">
+            <span class="material-symbols-outlined text-3xl text-orange-400 mb-2">schedule</span>
+            <p class="text-2xl font-bold text-white">{{ due_cards }}</p>
+            <p class="text-sm text-text-secondary">Cards Due</p>
         </div>
-        <div class="w-px h-12 bg-white/10 hidden md:block"></div>
-        <div>
-            <p class="text-3xl font-bold text-purple-400">{{ decks|length }}</p>
-            <p class="text-gray-400 text-sm">Decks Available</p>
+        <div class="bg-surface-card p-5 rounded-xl border border-border-dark text-center">
+            <span class="material-symbols-outlined text-3xl text-purple-400 mb-2">layers</span>
+            <p class="text-2xl font-bold text-white">{{ decks|length }}</p>
+            <p class="text-sm text-text-secondary">Decks</p>
         </div>
     </div>
 
     <!-- Study Options -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <!-- Quick Study -->
-        <div class="glass rounded-2xl p-8 card-hover">
-            <div class="flex items-start space-x-4">
-                <div
-                    class="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Quick Practice -->
+        <div
+            class="bg-gradient-to-br from-surface-card to-surface-dark rounded-xl border border-border-dark p-6 hover:border-primary/50 transition-all card-hover">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-primary">play_arrow</span>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-xl font-bold text-white mb-2">Quick Study</h3>
-                    <p class="text-gray-400 mb-4">Review all flashcards with spaced repetition. Perfect for daily
-                        practice.</p>
-
-                    <div class="space-y-3">
-                        <a href="{{ url_for('study.study_session') }}"
-                            class="btn-primary block text-center px-6 py-3 rounded-xl font-semibold text-white">
-                            Study All Cards
-                        </a>
-
-                        {% if decks %}
-                        <select id="deck-select-study" onchange="startDeckStudy(this.value)"
-                            class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white cursor-pointer">
-                            <option value="">Study Specific Deck...</option>
-                            {% for deck in decks %}
-                            <option value="{{ deck.id }}">{{ deck.name }} ({{ deck.card_count }} cards)</option>
-                            {% endfor %}
-                        </select>
-                        {% endif %}
-                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Quick Practice</h3>
+                    <p class="text-sm text-text-secondary">Review all due cards with spaced repetition.</p>
                 </div>
             </div>
+            {% if due_cards > 0 %}
+            <a href="{{ url_for('study.study_session') }}"
+                class="block w-full btn-primary text-center py-3 rounded-lg font-bold">
+                Start Now ({{ due_cards }} cards)
+            </a>
+            {% else %}
+            <button disabled
+                class="block w-full bg-surface-highlight text-text-secondary text-center py-3 rounded-lg font-bold cursor-not-allowed">
+                No Cards Due
+            </button>
+            {% endif %}
         </div>
 
-        <!-- Take Test -->
-        <div class="glass rounded-2xl p-8 card-hover">
-            <div class="flex items-start space-x-4">
-                <div
-                    class="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
-                        </path>
-                    </svg>
+        <!-- Study by Deck -->
+        <div
+            class="bg-gradient-to-br from-surface-card to-surface-dark rounded-xl border border-border-dark p-6 hover:border-primary/50 transition-all card-hover">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-blue-400">folder</span>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-xl font-bold text-white mb-2">Take a Test</h3>
-                    <p class="text-gray-400 mb-4">Test your knowledge with a graded exam. Get a detailed report card.
-                    </p>
-
-                    <a href="{{ url_for('study.start_test') }}"
-                        class="btn-primary block text-center px-6 py-3 rounded-xl font-semibold text-white">
-                        Start Test
-                    </a>
+                    <h3 class="text-xl font-bold text-white mb-1">Study by Deck</h3>
+                    <p class="text-sm text-text-secondary">Focus on a specific topic or subject.</p>
                 </div>
             </div>
+            <form action="{{ url_for('study.study_session') }}" method="GET" class="flex gap-3">
+                <select name="deck_id"
+                    class="flex-1 rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 px-3 text-sm focus:ring-1 focus:ring-primary">
+                    <option value="">Select a deck</option>
+                    {% for deck in decks %}
+                    <option value="{{ deck.id }}">{{ deck.name }} ({{ deck.card_count }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-secondary px-4 py-2.5 rounded-lg font-medium">Go</button>
+            </form>
+        </div>
+
+        <!-- Take a Test -->
+        <div
+            class="bg-gradient-to-br from-surface-card to-surface-dark rounded-xl border border-border-dark p-6 hover:border-primary/50 transition-all card-hover">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-purple-400">quiz</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-white mb-1">Take a Test</h3>
+                    <p class="text-sm text-text-secondary">Graded assessment with AI evaluation.</p>
+                </div>
+            </div>
+            <a href="{{ url_for('study.start_test') }}"
+                class="block w-full btn-secondary text-center py-3 rounded-lg font-bold">
+                Start Test
+            </a>
+        </div>
+
+        <!-- View Reports -->
+        <div
+            class="bg-gradient-to-br from-surface-card to-surface-dark rounded-xl border border-border-dark p-6 hover:border-primary/50 transition-all card-hover">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-green-400">insights</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-white mb-1">View Reports</h3>
+                    <p class="text-sm text-text-secondary">Track your progress and performance.</p>
+                </div>
+            </div>
+            <a href="{{ url_for('study.reports') }}"
+                class="block w-full btn-secondary text-center py-3 rounded-lg font-bold">
+                View Reports
+            </a>
         </div>
     </div>
 
-    <!-- Decks Overview -->
+    <!-- Recent Decks for Study -->
     {% if decks %}
-    <div class="glass rounded-2xl p-6">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                </path>
-            </svg>
-            Your Decks
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for deck in decks %}
+    <div class="flex flex-col gap-4">
+        <h3 class="text-lg font-bold text-white">Quick Access</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {% for deck in decks[:8] %}
             <a href="{{ url_for('study.study_session') }}?deck_id={{ deck.id }}"
-                class="glass rounded-xl p-4 hover:bg-white/5 transition-colors group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-white group-hover:text-primary-300 transition-colors">{{ deck.name
-                            }}</p>
-                        <p class="text-sm text-gray-500">{{ deck.card_count }} cards</p>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </div>
+                class="bg-surface-card p-4 rounded-lg border border-border-dark hover:border-primary/50 transition-all text-center group">
+                <span
+                    class="material-symbols-outlined text-2xl text-text-secondary group-hover:text-primary transition-colors">style</span>
+                <p class="text-sm font-medium text-white mt-2 truncate">{{ deck.name }}</p>
+                <p class="text-xs text-text-secondary">{{ deck.card_count }} cards</p>
             </a>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 </div>
-
-<script>
-    function startDeckStudy(deckId) {
-        if (deckId) {
-            window.location.href = '{{ url_for("study.study_session") }}?deck_id=' + deckId;
-        }
-    }
-</script>
 {% endblock %}

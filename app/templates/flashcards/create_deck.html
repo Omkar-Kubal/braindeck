@@ -1,65 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}Create Deck - FlashMaster{% endblock %}
+{% block title %}Create Deck - BrainDeck{% endblock %}
+{% block breadcrumb %}Create Deck{% endblock %}
 
 {% block content %}
-<div class="animate-fade-in max-w-2xl mx-auto">
-    <!-- Header -->
+<div class="max-w-2xl mx-auto">
     <div class="mb-8">
-        <a href="{{ url_for('flashcards.list_decks') }}"
-            class="inline-flex items-center text-gray-400 hover:text-white transition-colors mb-4">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
-                </path>
-            </svg>
-            Back to Decks
-        </a>
-        <h1 class="text-3xl font-bold gradient-text">Create Deck</h1>
-        <p class="text-gray-400 mt-1">Create a new collection for your flashcards</p>
+        <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Create New Deck</h1>
+        <p class="text-text-secondary">Organize your flashcards into a topic-based collection.</p>
     </div>
 
-    <!-- Form -->
-    <form action="{{ url_for('flashcards.create_deck') }}" method="POST" class="glass rounded-2xl p-8">
-        <!-- Name -->
-        <div class="mb-6">
-            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Deck Name *</label>
-            <input type="text" name="name" id="name" required
-                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
-                placeholder="e.g., Biology Chapter 5">
+    <form method="POST" action="{{ url_for('flashcards.create_deck') }}" class="flex flex-col gap-6">
+        <!-- Deck Name -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-white">Deck Name *</label>
+            <input type="text" name="name" required
+                class="w-full rounded-lg bg-surface-dark border border-border-dark text-white py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="e.g., Spanish Vocabulary, Biology Chapter 5">
         </div>
 
         <!-- Description -->
-        <div class="mb-6">
-            <label for="description" class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-            <textarea name="description" id="description" rows="3"
-                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 resize-none"
-                placeholder="What's this deck about?"></textarea>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-white">Description (optional)</label>
+            <textarea name="description"
+                class="w-full resize-none rounded-lg bg-surface-dark border border-border-dark text-white py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-transparent min-h-[100px]"
+                placeholder="What is this deck about?"></textarea>
         </div>
 
         <!-- Category -->
-        <div class="mb-6">
-            <label for="category" class="block text-sm font-medium text-gray-300 mb-2">Category</label>
-            <input type="text" name="category" id="category"
-                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
-                placeholder="e.g., Science, Math, Language">
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-white">Category (optional)</label>
+            <input type="text" name="category"
+                class="w-full rounded-lg bg-surface-dark border border-border-dark text-white py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="e.g., Languages, Science, History">
         </div>
 
         <!-- Tags -->
-        <div class="mb-8">
-            <label for="tags" class="block text-sm font-medium text-gray-300 mb-2">Tags</label>
-            <input type="text" name="tags" id="tags"
-                class="w-full glass rounded-xl px-4 py-3 bg-white/5 border-0 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500"
-                placeholder="Comma-separated: cells, biology, exam-prep">
-            <p class="text-xs text-gray-500 mt-2">Separate tags with commas</p>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-white">Tags (optional)</label>
+            <input type="text" name="tags"
+                class="w-full rounded-lg bg-surface-dark border border-border-dark text-white py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Comma-separated tags, e.g., vocabulary, verbs, beginner">
         </div>
 
-        <!-- Submit -->
-        <div class="flex items-center justify-end space-x-4">
-            <a href="{{ url_for('flashcards.list_decks') }}"
-                class="px-6 py-3 rounded-xl font-semibold text-gray-400 hover:text-white transition-colors">
+        <!-- Actions -->
+        <div class="flex gap-3 pt-4">
+            <a href="{{ url_for('flashcards.list_decks') }}" class="btn-secondary px-6 py-3 rounded-lg font-medium">
                 Cancel
             </a>
-            <button type="submit" class="btn-primary px-8 py-3 rounded-xl font-semibold text-white">
+            <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined">add</span>
                 Create Deck
             </button>
         </div>

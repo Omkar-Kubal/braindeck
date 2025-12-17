@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Flashcards with AI - BrainDeck{% endblock %}
+{% block breadcrumb %}AI Generate{% endblock %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row gap-6 h-full min-h-[calc(100vh-200px)]">
+    <!-- Left Panel: Input -->
+    <div class="w-full lg:w-5/12 flex flex-col bg-surface-card rounded-xl border border-border-dark overflow-hidden">
+        <div class="px-6 pt-8 pb-4">
+            <h1 class="text-3xl font-bold tracking-tight mb-2 text-white">
+                Create Flashcards
+            </h1>
+            <p class="text-text-secondary text-sm">
+                Turn your notes into knowledge instantly.
+            </p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="px-6 border-b border-border-dark">
+            <div class="flex gap-6">
+                <button class="tab-btn flex items-center gap-2 pb-3 border-b-2 border-primary text-primary"
+                    data-tab="text">
+                    <span class="material-symbols-outlined text-[20px] fill">description</span>
+                    <span class="text-sm font-bold">Paste Text</span>
+                </button>
+                <button
+                    class="tab-btn flex items-center gap-2 pb-3 border-b-2 border-transparent text-text-secondary hover:text-white transition-colors"
+                    data-tab="pdf">
+                    <span class="material-symbols-outlined text-[20px]">upload_file</span>
+                    <span class="text-sm font-bold">Upload PDF</span>
+                </button>
+                <button
+                    class="tab-btn flex items-center gap-2 pb-3 border-b-2 border-transparent text-text-secondary hover:text-white transition-colors"
+                    data-tab="search">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                    <span class="text-sm font-bold">Topic Search</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Content -->
+        <form id="generate-form" class="p-6 flex flex-col gap-6 flex-1 overflow-y-auto">
+            <!-- Text Tab Content -->
+            <div id="text-tab" class="tab-content">
+                <div class="flex flex-col gap-2 relative">
+                    <div class="flex justify-between items-baseline">
+                        <label class="text-sm font-medium text-white">Source Material</label>
+                        <span class="text-xs text-text-secondary" id="char-count">0/5000</span>
+                    </div>
+                    <textarea id="source-text" name="text"
+                        class="w-full resize-none rounded-lg border border-border-dark bg-surface-dark text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[200px] p-4 text-sm leading-relaxed placeholder:text-text-secondary transition-all"
+                        placeholder="Paste your lecture notes, article text, or summary here..."
+                        maxlength="5000"></textarea>
+                </div>
+            </div>
+
+            <!-- PDF Tab Content -->
+            <div id="pdf-tab" class="tab-content hidden">
+                <div class="flex flex-col gap-4">
+                    <div class="border-2 border-dashed border-border-dark rounded-xl p-8 text-center hover:border-primary/50 transition-colors"
+                        id="pdf-drop-zone">
+                        <input type="file" id="pdf-input" accept=".pdf" class="hidden">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-surface-highlight flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-text-secondary"
+                                    id="pdf-icon">upload_file</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium mb-1">Drop your PDF here</p>
+                                <p class="text-text-secondary text-sm">or <button type="button"
+                                        onclick="document.getElementById('pdf-input').click()"
+                                        class="text-primary hover:underline">browse files</button></p>
+                            </div>
+                            <p class="text-xs text-text-secondary">Maximum file size: 10MB</p>
+                        </div>
+                    </div>
+                    <div id="pdf-status" class="hidden bg-surface-highlight rounded-lg p-4">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <div class="flex-1">
+                                <p class="text-white font-medium" id="pdf-filename">document.pdf</p>
+                                <p class="text-xs text-text-secondary" id="pdf-info">5 pages • 2,345 characters
+                                    extracted</p>
+                            </div>
+                            <button type="button" onclick="clearPdf()"
+                                class="p-2 hover:bg-surface-dark rounded-lg text-text-secondary hover:text-red-400 transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topic Search Tab Content -->
+            <div id="search-tab" class="tab-content hidden">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-white">Search Wikipedia</label>
+                        <div class="relative">
+                            <input type="text" id="search-input"
+                                placeholder="Enter a topic (e.g., 'Photosynthesis', 'World War 2')"
+                                class="w-full rounded-lg border border-border-dark bg-surface-dark text-white py-3 pl-4 pr-24 text-sm focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary">
+                            <button type="button" onclick="searchTopic()"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-primary text-slate-900 rounded-lg text-sm font-bold hover:bg-primary-dark transition-colors">
+                                Search
+                            </button>
+                        </div>
+                        <p class="text-xs text-text-secondary">Search Wikipedia for educational content on any topic</p>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div id="search-results" class="hidden">
+                        <div class="bg-surface-highlight rounded-lg p-4 border border-border-dark">
+                            <div class="flex items-start gap-3 mb-3">
+                                <span class="material-symbols-outlined text-primary">article</span>
+                                <div class="flex-1">
+                                    <h4 class="text-white font-bold mb-1" id="search-title">Article Title</h4>
+                                    <a href="#" id="search-url" target="_blank"
+                                        class="text-xs text-primary hover:underline">View on Wikipedia →</a>
+                                </div>
+                                <button type="button" onclick="clearSearch()"
+                                    class="p-1 hover:bg-surface-dark rounded text-text-secondary hover:text-red-400 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">close</span>
+                                </button>
+                            </div>
+                            <p class="text-sm text-text-secondary" id="search-preview">Preview text...</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Loading -->
+                    <div id="search-loading" class="hidden flex items-center justify-center gap-3 p-8">
+                        <div class="w-6 h-6 rounded-full border-2 border-primary/20 border-t-primary animate-spin">
+                        </div>
+                        <span class="text-text-secondary">Searching Wikipedia...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Card Type</label>
+                    <div class="relative">
+                        <select name="card_type"
+                            class="w-full appearance-none rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 pl-3 pr-8 text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="mixed">Mixed (Q&A + MCQ)</option>
+                            <option value="qa">Q&A Only</option>
+                            <option value="mcq">Multiple Choice</option>
+                            <option value="fill_blank">Fill-in-the-Blanks</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none text-[20px]">expand_more</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Difficulty</label>
+                    <div class="relative">
+                        <select name="difficulty"
+                            class="w-full appearance-none rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 pl-3 pr-8 text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate" selected>Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none text-[20px]">expand_more</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Quantity</label>
+                    <div class="relative">
+                        <select name="quantity"
+                            class="w-full appearance-none rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 pl-3 pr-8 text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="5">5 Cards</option>
+                            <option value="10" selected>10 Cards</option>
+                            <option value="15">15 Cards</option>
+                            <option value="20">20 Cards</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none text-[20px]">expand_more</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Focus Area</label>
+                    <div class="relative">
+                        <select name="focus_area"
+                            class="w-full appearance-none rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 pl-3 pr-8 text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="key_concepts">Key Concepts</option>
+                            <option value="definitions">Definitions</option>
+                            <option value="dates_events">Dates & Events</option>
+                            <option value="processes">Processes</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none text-[20px]">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="mt-auto pt-4 border-t border-border-dark">
+                <button type="submit" id="generate-btn"
+                    class="group w-full flex items-center justify-center gap-3 btn-primary rounded-lg h-12 font-bold text-base shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined" id="generate-icon">auto_awesome</span>
+                    <span id="generate-text">Generate Flashcards</span>
+                </button>
+                <p class="text-center text-xs text-text-secondary mt-3">
+
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Panel: Preview -->
+    <div class="flex-1 flex flex-col bg-surface-dark rounded-xl border border-border-dark overflow-hidden">
+        <div
+            class="px-6 py-5 border-b border-border-dark flex justify-between items-center bg-surface-card/50 backdrop-blur-sm">
+            <div class="flex items-center gap-3">
+                <h2 class="text-xl font-bold text-white">Preview</h2>
+                <span id="card-count-badge"
+                    class="bg-primary/10 text-primary px-2.5 py-0.5 rounded text-xs font-bold border border-primary/20 hidden">
+                    0 Cards Generated
+                </span>
+            </div>
+            <div class="flex gap-3" id="preview-actions" style="display: none;">
+                <button type="button" id="save-btn"
+                    class="flex items-center gap-2 px-4 py-2 btn-primary rounded-lg text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">save</span>
+                    Save to Deck
+                </button>
+            </div>
+        </div>
+
+        <div id="preview-content" class="flex-1 overflow-y-auto p-6">
+            <!-- Empty State -->
+            <div id="empty-state" class="flex flex-col items-center justify-center h-full text-center py-12">
+                <div class="w-20 h-20 rounded-full bg-surface-highlight flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-4xl text-text-secondary">auto_awesome</span>
+                </div>
+                <h3 class="text-white font-bold text-lg mb-2">Ready to Generate</h3>
+                <p class="text-text-secondary max-w-sm">
+                    Paste your text on the left and click "Generate Flashcards" to create study cards automatically.
+                </p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="flex flex-col items-center justify-center h-full text-center py-12"
+                style="display: none;">
+                <div class="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4"></div>
+                <h3 class="text-white font-bold text-lg mb-2">Generating Flashcards...</h3>
+                <p class="text-text-secondary">This may take a few seconds</p>
+            </div>
+
+            <!-- Cards Container -->
+            <div id="cards-container" class="max-w-3xl mx-auto flex flex-col gap-6" style="display: none;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Modal -->
+<div id="save-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSaveModal()"></div>
+    <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-card rounded-xl border border-border-dark p-6 animate-slide-up">
+        <h3 class="text-xl font-bold text-white mb-4">Save Flashcards</h3>
+        <form id="save-form">
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-sm font-medium text-white mb-2 block">Select Existing Deck</label>
+                    <select name="deck_id"
+                        class="w-full rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 px-3 text-sm focus:ring-1 focus:ring-primary">
+                        <option value="">-- Create New Deck --</option>
+                        {% for deck in decks %}
+                        <option value="{{ deck.id }}">{{ deck.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="new-deck-name-field">
+                    <label class="text-sm font-medium text-white mb-2 block">New Deck Name</label>
+                    <input type="text" name="deck_name" placeholder="e.g., Biology Chapter 5"
+                        class="w-full rounded-lg bg-surface-dark border border-border-dark text-white py-2.5 px-3 text-sm focus:ring-1 focus:ring-primary placeholder:text-text-secondary">
+                </div>
+                <div class="flex gap-3 mt-2">
+                    <button type="button" onclick="closeSaveModal()"
+                        class="flex-1 btn-secondary py-2.5 rounded-lg font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 btn-primary py-2.5 rounded-lg font-medium">
+                        Save Cards
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('generate-form');
+    const textarea = document.getElementById('source-text');
+    const charCount = document.getElementById('char-count');
+    const generateBtn = document.getElementById('generate-btn');
+    const generateIcon = document.getElementById('generate-icon');
+    const generateText = document.getElementById('generate-text');
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+    const cardsContainer = document.getElementById('cards-container');
+    const cardCountBadge = document.getElementById('card-count-badge');
+    const previewActions = document.getElementById('preview-actions');
+
+    let generatedCards = [];
+    let currentTab = 'text';
+    let pdfExtractedText = '';
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tab = this.dataset.tab;
+            switchTab(tab);
+        });
+    });
+
+    function switchTab(tab) {
+        currentTab = tab;
+
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.dataset.tab === tab) {
+                btn.classList.remove('border-transparent', 'text-text-secondary');
+                btn.classList.add('border-primary', 'text-primary');
+            } else {
+                btn.classList.add('border-transparent', 'text-text-secondary');
+                btn.classList.remove('border-primary', 'text-primary');
+            }
+        });
+
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        document.getElementById(`${tab}-tab`).classList.remove('hidden');
+    }
+
+    // PDF Upload functionality
+    const pdfInput = document.getElementById('pdf-input');
+    const pdfDropZone = document.getElementById('pdf-drop-zone');
+    const pdfStatus = document.getElementById('pdf-status');
+
+    // File input change
+    pdfInput.addEventListener('change', function (e) {
+        if (this.files.length > 0) {
+            handlePdfUpload(this.files[0]);
+        }
+    });
+
+    // Drag and drop
+    pdfDropZone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        this.classList.add('border-primary', 'bg-primary/5');
+    });
+
+    pdfDropZone.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        this.classList.remove('border-primary', 'bg-primary/5');
+    });
+
+    pdfDropZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.classList.remove('border-primary', 'bg-primary/5');
+
+        if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.type === 'application/pdf') {
+                handlePdfUpload(file);
+            } else {
+                alert('Please upload a PDF file.');
+            }
+        }
+    });
+
+    async function handlePdfUpload(file) {
+        const pdfIcon = document.getElementById('pdf-icon');
+        pdfIcon.textContent = 'hourglass_empty';
+        pdfIcon.classList.add('animate-spin');
+
+        const formData = new FormData();
+        formData.append('pdf_file', file);
+
+        try {
+            const response = await fetch('{{ url_for("ai.upload_pdf") }}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                pdfExtractedText = data.text;
+
+                // Show success status
+                pdfDropZone.classList.add('hidden');
+                pdfStatus.classList.remove('hidden');
+                document.getElementById('pdf-filename').textContent = file.name;
+                document.getElementById('pdf-info').textContent = `${data.pages} pages • ${data.chars.toLocaleString()} characters extracted`;
+
+                // Also update the textarea so the form works
+                textarea.value = pdfExtractedText;
+                charCount.textContent = `${pdfExtractedText.length}/5000`;
+            } else {
+                throw new Error(data.error || 'Upload failed');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        } finally {
+            pdfIcon.textContent = 'upload_file';
+            pdfIcon.classList.remove('animate-spin');
+        }
+    }
+
+    function clearPdf() {
+        pdfExtractedText = '';
+        textarea.value = '';
+        charCount.textContent = '0/5000';
+        pdfDropZone.classList.remove('hidden');
+        pdfStatus.classList.add('hidden');
+        pdfInput.value = '';
+    }
+
+    // Topic Search functionality
+    async function searchTopic() {
+        const searchInput = document.getElementById('search-input');
+        const topic = searchInput.value.trim();
+
+        if (!topic) {
+            alert('Please enter a topic to search');
+            return;
+        }
+
+        const loadingEl = document.getElementById('search-loading');
+        const resultsEl = document.getElementById('search-results');
+
+        // Show loading
+        resultsEl.classList.add('hidden');
+        loadingEl.classList.remove('hidden');
+
+        try {
+            const response = await fetch('{{ url_for("ai.search_topic") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show results
+                document.getElementById('search-title').textContent = data.title;
+                document.getElementById('search-url').href = data.url;
+                document.getElementById('search-preview').textContent =
+                    data.text.length > 200 ? data.text.substring(0, 200) + '...' : data.text;
+
+                loadingEl.classList.add('hidden');
+                resultsEl.classList.remove('hidden');
+
+                // Auto-fill textarea
+                textarea.value = data.text;
+                charCount.textContent = `${data.text.length}/5000`;
+            } else {
+                throw new Error(data.error || 'Search failed');
+            }
+        } catch (error) {
+            loadingEl.classList.add('hidden');
+            alert('Search Error: ' + error.message);
+        }
+    }
+
+    function clearSearch() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-results').classList.add('hidden');
+        textarea.value = '';
+        charCount.textContent = '0/5000';
+    }
+
+    // Allow Enter key to search
+    document.getElementById('search-input')?.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchTopic();
+        }
+    });
+
+    // Character count
+    textarea.addEventListener('input', function () {
+        charCount.textContent = `${this.value.length}/5000`;
+    });
+
+    // Form submission
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const text = textarea.value.trim();
+        if (!text || text.length < 50) {
+            alert('Please enter at least 50 characters of text.');
+            return;
+        }
+
+        // Show loading
+        emptyState.style.display = 'none';
+        cardsContainer.style.display = 'none';
+        loadingState.style.display = 'flex';
+        generateBtn.disabled = true;
+        generateIcon.textContent = 'hourglass_empty';
+        generateIcon.classList.add('animate-spin');
+        generateText.textContent = 'Generating...';
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('{{ url_for("ai.generate_flashcards") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: formData.get('text'),
+                    card_type: formData.get('card_type'),
+                    difficulty: formData.get('difficulty'),
+                    quantity: parseInt(formData.get('quantity')),
+                    focus_area: formData.get('focus_area')
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                generatedCards = data.flashcards;
+                renderCards(generatedCards);
+            } else {
+                throw new Error(data.error || 'Generation failed');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+            emptyState.style.display = 'flex';
+        } finally {
+            loadingState.style.display = 'none';
+            generateBtn.disabled = false;
+            generateIcon.textContent = 'auto_awesome';
+            generateIcon.classList.remove('animate-spin');
+            generateText.textContent = 'Generate Flashcards';
+        }
+    });
+
+    function renderCards(cards) {
+        cardsContainer.innerHTML = '';
+        cardsContainer.style.display = 'flex';
+        cardCountBadge.textContent = `${cards.length} Cards Generated`;
+        cardCountBadge.classList.remove('hidden');
+        previewActions.style.display = 'flex';
+
+        cards.forEach((card, index) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'group relative bg-surface-card rounded-xl border border-border-dark p-6 hover:border-primary/50 transition-all';
+            cardEl.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider bg-surface-highlight px-2 py-1 rounded">
+                        Question ${index + 1} • ${card.category || card.type.toUpperCase()}
+                    </span>
+                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="deleteCard(${index})" class="p-1.5 hover:bg-surface-highlight rounded text-text-secondary hover:text-red-400 transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-text-secondary text-xs font-bold uppercase mb-2">Front</h4>
+                        <p class="text-lg font-medium text-white leading-relaxed">${card.question}</p>
+                        ${card.options && card.options.length > 0 ? `
+                            <ul class="mt-3 space-y-1 text-sm text-text-secondary">
+                                ${card.options.map((opt, i) => `<li class="${String.fromCharCode(65 + i) === card.answer ? 'text-primary font-bold' : ''}">${String.fromCharCode(65 + i)}) ${opt}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                    <div class="border-t border-dashed border-border-dark pt-4">
+                        <h4 class="text-text-secondary text-xs font-bold uppercase mb-2">Back</h4>
+                        <p class="text-base text-slate-300 leading-relaxed">${card.answer}</p>
+                        ${card.explanation ? `<p class="text-sm text-text-secondary mt-2">${card.explanation}</p>` : ''}
+                    </div>
+                </div>
+            `;
+            cardsContainer.appendChild(cardEl);
+        });
+    }
+
+    function deleteCard(index) {
+        generatedCards.splice(index, 1);
+        renderCards(generatedCards);
+        if (generatedCards.length === 0) {
+            cardsContainer.style.display = 'none';
+            emptyState.style.display = 'flex';
+            cardCountBadge.classList.add('hidden');
+            previewActions.style.display = 'none';
+        }
+    }
+
+    // Save modal
+    document.getElementById('save-btn').addEventListener('click', function () {
+        document.getElementById('save-modal').classList.remove('hidden');
+    });
+
+    function closeSaveModal() {
+        document.getElementById('save-modal').classList.add('hidden');
+    }
+
+    // Toggle new deck name field
+    document.querySelector('select[name="deck_id"]').addEventListener('change', function () {
+        document.getElementById('new-deck-name-field').style.display = this.value ? 'none' : 'block';
+    });
+
+    // Save form
+    document.getElementById('save-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const deckId = formData.get('deck_id');
+        const deckName = formData.get('deck_name');
+
+        if (!deckId && !deckName) {
+            alert('Please select a deck or enter a new deck name.');
+            return;
+        }
+
+        try {
+            const response = await fetch('{{ url_for("ai.save_flashcards") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    deck_id: deckId || null,
+                    deck_name: deckName || null,
+                    flashcards: generatedCards
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = '{{ url_for("flashcards.list_flashcards") }}' + (data.deck_id ? '?deck_id=' + data.deck_id : '');
+            } else {
+                throw new Error(data.error || 'Save failed');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+</script>
+{% endblock %}

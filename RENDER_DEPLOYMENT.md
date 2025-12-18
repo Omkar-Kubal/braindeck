@@ -42,6 +42,7 @@ git push -u origin main
 6. **Plan:** Free
 7. Click "Create Database"
 8. **Copy the Internal Database URL** (save for later)
+dpg-d51s1rjuibrs739gu890-a
 
 ### C. Deploy Backend
 1. Click "New +" → "Web Service"
